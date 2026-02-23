@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Khusela Professional Dashboard - Drill-Through Fixed</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script><style>
+:root {
+--c-charcoal: #2C3E50;
+--c-black: #1A1A1A;
+--c-blue: #2980B9;
+--c-green: #27AE60;
+--c-grey-light: #F2F4F4;
+--c-grey-mid: #95A5A6;
+--nav-dark: #1F2937;
+--bg: #EBEDEF;
+}
+body { margin: 0; font-family: 'Segoe UI', sans-serif; height: 100vh; display: flex; flex-direction: column; background: var(--bg); overflow: hidden; }
+.nav-bar { background: var(--nav-dark); display: flex; padding: 0 40px; flex-shrink: 0; }
+.nav-item { padding: 12px 20px; color: #94a3b8; font-size: 11px; font-weight: 800; cursor: pointer; text-transform: uppercase; border-bottom: 3px solid transparent; }
+.nav-item.active { color: white; border-bottom-color: var(--c-blue); background: rgba(255,255,255,0.05); }
+.header { background: white; color: var(--c-charcoal); padding: 12px 40px; font-size: 16px; font-weight: 800; border-bottom: 4px solid var(--c-charcoal); flex-shrink: 0; }
+#main-layout { display: grid; grid-template-columns: 240px 1fr 300px; flex-grow: 1; height: calc(100vh - 110px); overflow: hidden; }
+.sidebar-l { background: white; border-right: 1px solid #d1d5db; padding: 15px; overflow-y: auto; }
+.btn-pbi { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid #d1d5db; background: var(--c-grey-light); color: var(--c-charcoal); cursor: pointer; font-weight: 700; font-size: 11px; border-radius: 4px; display: block; text-align: center; transition: 0.2s; }
+.btn-pbi:hover { background: #e2e8f0; }
+.btn-url { background: var(--c-blue); color: white; border: none; }
+.btn-save { background: var(--c-charcoal); color: white; border: none; margin-top: 15px; }
+.btn-clear { background: #991b1b; color: white; border: none; }
+.canvas-area { padding: 20px; overflow-y: auto; background: #cbd5e1; display: flex; flex-direction: column; align-items: center; }
+.page-sheet { display: none; background: white; width: 100%; max-width: 1400px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; padding: 25px; box-sizing: border-box; align-items: start; }
+.page-sheet.active { display: grid; }
+.chart-card { border: 1px solid #e2e8f0; background: #fff; padding: 15px; display: flex; flex-direction: column; border-radius: 4px; position: relative; height: 380px; box-sizing: border-box; overflow: auto; resize: both; min-width: 300px; min-height: 250px; }
+.chart-card:hover { border-color: var(--c-blue); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+.deselect-btn { position: absolute; top: 10px; right: 10px; background: #111827; color: white; border: none; border-radius: 2px; padding: 4px 8px; cursor: pointer; font-size: 9px; font-weight: 800; z-index: 10; }
+.chart-title-input { border: none; font-size: 13px; font-weight: 800; margin-bottom: 15px; width: 70%; outline: none; background: transparent; color: var(--c-black); text-transform: uppercase; border-bottom: 1px solid transparent; }
+.chart-title-input:focus { border-bottom-color: var(--c-blue); }
+.chart-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; min-height: 20px; }
+.tag { background: var(--c-grey-light); border: 1px solid #d1d5db; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 700; display: flex; align-items: center; gap: 5px; color: var(--c-charcoal); }
+.tag-remove { cursor: pointer; color: #991b1b; font-weight: 800; font-size: 12px; }
+.panes { display: flex; flex-direction: column; background: white; border-left: 1px solid #d1d5db; overflow-y: auto; }
+.pane-viz { border-bottom: 1px solid #f1f5f9; padding: 10px; }
+.viz-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.viz-icon { height: 50px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: grab; background: #f8fafc; border-radius: 4px; font-size: 9px; color: var(--c-charcoal); gap: 4px; font-weight: 700; }
+.field-item { display: flex; align-items: center; padding: 8px 15px; font-size: 11px; cursor: grab; gap: 8px; border-bottom: 1px solid #f1f5f9; color: var(--c-charcoal); font-weight: 500; }
+.tab-group-header { padding: 10px 15px; background: var(--c-charcoal); font-size: 10px; font-weight: 800; color: white; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid rgba(255,255,255,0.1); cursor: pointer; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; background: #94a3b8; margin-right: 5px; }
+.status-on { background: var(--c-green); box-shadow: 0 0 8px var(--c-green); }
+.chart-wrapper { flex-grow: 1; position: relative; min-height: 0; overflow: hidden; }
+.visual-table { width: 100%; border-collapse: collapse; font-size: 10px; }
+.visual-table th { background: #f8fafc; position: sticky; top: 0; padding: 8px; border: 1px solid #e2e8f0; text-align: left; z-index: 1; }
+.visual-table td { padding: 6px 8px; border: 1px solid #f1f5f9; }
+iframe { width: 100%; height: 100%; border: none; }
+#drill-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; justify-content: center; align-items: center; }
+.drill-modal { background: white; width: 95%; max-height: 85%; border-radius: 4px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); }
+.drill-header { background: var(--c-charcoal); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; font-weight: 800; }
+.drill-body { overflow: auto; padding: 0; }
+.drill-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.drill-table th { background: #f8fafc; position: sticky; top: 0; padding: 12px 8px; border: 1px solid #d1d5db; text-align: left; color: var(--c-charcoal); z-index: 10; }
+.drill-table td { padding: 8px; border: 1px solid #e2e8f0; color: #334155; }
+.drill-table tr:nth-child(even) { background: #fdfdfd; }
+.drill-table tr:hover { background: #f1f5f9; }
+</style>
+</head>
+<body onload="UI.init()">
+    <nav class="nav-bar">
+    <div class="nav-item active" id="btn-compliance" onclick="UI.switchTab(this, 'compliance-page')">Drone Deploy</div>
+    <div class="nav-item" id="btn-performance" onclick="UI.switchTab(this, 'performance-page')">Assets</div>
+    <div class="nav-item" id="btn-assets" onclick="UI.switchTab(this, 'assets-page')">Forecast</div>
+    </nav>
+    <div class="header">KHUSELA | ANALYTICS</div>
+    <div id="main-layout">
+    <aside class="sidebar-l">
+    <button type="button" class="btn-pbi" onclick="UI.upload()">UPLOAD DOCUMENT</button>
+    <button type="button" class="btn-pbi btn-url" onclick="UI.loadURL()">LOAD URL</button>
+    <div style="border-top: 2px solid var(--c-grey-light); margin-top: 15px; padding-top: 15px;">
+    <div style="font-size: 10px; font-weight: 800; color: #64748b; margin-bottom: 10px; text-transform: uppercase;">Admin Controls</div>
+    <button type="button" class="btn-pbi btn-save" onclick="UI.saveDashboard()">SAVE DASHBOARD</button>
+    <button type="button" class="btn-pbi btn-clear" onclick="UI.clearFullDashboard()">CLEAR DASHBOARD</button>
+    </div>
+    <div style="margin-top:20px; font-size:10px; color:#64748b; font-weight: 700;">
+    <span id="stat-dot" class="status-dot"></span><span id="stat-text">System Standby</span>
+    </div>
+    </aside>
+    <main class="canvas-area">
+    <div class="page-sheet active" id="compliance-page" ondragover="UI.allow(event)" ondrop="UI.dropNewChart(event)"></div>
+    <div class="page-sheet" id="performance-page" ondragover="UI.allow(event)" ondrop="UI.dropNewChart(event)"></div>
+    <div class="page-sheet" id="assets-page" ondragover="UI.allow(event)" ondrop="UI.dropNewChart(event)"></div>
+    </main>
+    <div class="panes">
+    <div class="pane-viz">
+    <div style="padding:8px; font-weight:800; font-size:11px; color:var(--c-charcoal); text-transform: uppercase;">Visual Types</div>
+    <div class="viz-grid">
+    <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'bar','v')"><svg viewbox="0 0 24 24" width="18"><rect x="3" y="10" width="4" height="11" fill="#2980B9" /><rect x="10" y="5" width="4" height="16" fill="#2C3E50" /><rect x="17" y="13" width="4" height="8" fill="#27AE60" /></svg><span>Bar</span></div>
+    <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'line','v')"><svg viewbox="0 0 24 24" width="18">
+    <path d="M3.5 18.49l6-6.01 4 4L22 6.92" fill="none" stroke="#2980B9" stroke-width="3" /></svg><span>Line</span></div>
+    <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'doughnut','v')"><svg viewbox="0 0 24 24" width="18"><circle cx="12" cy="12" r="10" fill="none" stroke="#2C3E50" stroke-width="4" /><circle cx="12" cy="12" r="10" fill="none" stroke="#27AE60" stroke-width="4" stroke-dasharray="30 70" /></svg><span>Doughnut</span></div>
+    <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'pie','v')"><svg viewbox="0 0 24 24" width="18">
+    <path d="M12 12 L12 2 A10 10 0 0 1 22 12 Z" fill="#2C3E50" />
+    <path d="M12 12 L22 12 A10 10 0 0 1 12 22 Z" fill="#2980B9" />
+    <path d="M12 12 L12 22 A10 10 0 0 1 2 12 Z" fill="#27AE60" /></svg><span>Pie</span></div>
+    <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'radar','v')"><svg viewbox="0 0 24 24" width="18">
+    <path d="M12 2 L4.5 20.5 L19.5 20.5 Z" fill="none" stroke="#2980B9" stroke-width="2" /><circle cx="12" cy="12" r="9" fill="none" stroke="#ccc" stroke-width="1" stroke-dasharray="2,2" /></svg><span>Radar</span></div>
+    <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'heatmap','v')"><svg viewbox="0 0 24 24" width="18"><rect x="2" y="2" width="20" height="20" rx="2" fill="#2980B9" fill-opacity="0.3" /><rect x="6" y="6" width="12" height="12" rx="1" fill="#2980B9" fill-opacity="0.7" /></svg><span>Heatmap</span></div>
+    <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'table','v')"><svg viewbox="0 0 24 24" width="18">
+    <path d="M3 5h18v2H3zm0 4h18v2H3zm0 4h18v2H3zm0 4h18v2H3z" fill="#2C3E50" /></svg><span>Table</span></div>
+    <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'iframe','v')"><svg viewbox="0 0 24 24" width="18"><rect x="2" y="4" width="20" height="16" rx="2" fill="none" stroke="#2C3E50" stroke-width="2" />
+    <line x1="2" y1="8" x2="22" y2="8" stroke="#2C3E50" stroke-width="2" /></svg><span>Web View</span></div>
+    </div>
+    </div>
+    <div class="pane-data">
+    <div style="padding:12px; font-weight:800; font-size:11px; color:var(--c-charcoal); text-transform: uppercase;">Fields by Tab</div>
+    <div id="data-list"></div>
+    </div>
+    </div>
+    </div>
+    <div id="drill-overlay">
+    <div class="drill-modal">
+    <div class="drill-header">
+    <span id="drill-title">DRILL-THROUGH DATA</span>
+    <button type="button" onclick="UI.closeDrill()" style="background:#e74c3c; color:white; border:none; padding:8px 15px; cursor:pointer; font-weight:800; border-radius:3px;">CLOSE DETAILS</button>
+    </div>
+    <div class="drill-body" id="drill-table-container"></div>
+    </div>
+    </div>
+<script>
+    Chart.register(ChartDataLabels);
+    const UI = {
+        tabStorage: {
+            'compliance-page': { sheets: {}, activeFields: {}, sourceName: "" },
+            'performance-page': { sheets: {}, activeFields: {}, sourceName: "" },
+            'assets-page': { sheets: {}, activeFields: {}, sourceName: "" }
+        },
+        charts: {}, 
+        currentTab: 'compliance-page',
+        proColors: ['#2C3E50', '#2980B9', '#27AE60', '#95A5A6', '#1A1A1A', '#34495E', '#16A085'],
+        
+        // HELPER: Returns White or Black text based on background brightness
+        getContrastColor(hex) {
+            if (!hex || hex[0] !== '#') return '#1A1A1A';
+            const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
+            const luminance = (r * 299 + g * 587 + b * 114) / 1000;
+            return luminance > 125 ? '#1A1A1A' : '#FFFFFF';
+        },
+
+        init() { this.loadSavedCharts(); this.renderDataPanel(); },
+
+        switchTab(el, pageId) {
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            if(el) el.classList.add('active');
+            document.querySelectorAll('.page-sheet').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            this.currentTab = pageId;
+            this.loadSavedCharts();
+            this.renderDataPanel();
+            this.updateStatusIndicator();
+        },
+
+        async loadURL() {
+            const url = prompt("Excel URL:");
+            if(!url) return;
+            try {
+                const response = await fetch(url);
+                const arrayBuffer = await response.arrayBuffer();
+                this.process(arrayBuffer, this.currentTab);
+            } catch(e) { 
+                alert("Failed to load URL.");
+            }
+        },
+
+        upload() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.onchange = (e) => {
+                const reader = new FileReader();
+                reader.onload = (ev) => this.process(ev.target.result, this.currentTab);
+                reader.readAsArrayBuffer(e.target.files[0]);
+            };
+            input.click();
+        },
+
+        process(buffer, targetTab) {
+            const workbook = XLSX.read(new Uint8Array(buffer), {type:'array'});
+            const storage = this.tabStorage[targetTab];
+            storage.sheets = {};
+            workbook.SheetNames.forEach(name => {
+                const rows = XLSX.utils.sheet_to_json(workbook.Sheets[name], {header:1, defval:""});
+                if(rows.length > 0) {
+                    let hIdx = rows.findIndex(r => r.filter(c => c !== "").length > 1);
+                    hIdx = hIdx === -1 ? 0 : hIdx;
+                    storage.sheets[name] = { h: rows[hIdx], d: rows.slice(hIdx + 1).filter(r => r.some(c => c !== "")) };
+                }
+            });
+            localStorage.setItem('raw_data_' + targetTab, JSON.stringify(storage.sheets));
+            this.renderDataPanel();
+            this.updateStatusIndicator();
+        },
+
+        renderDataPanel() {
+            const container = document.getElementById('data-list');
+            const sheets = this.tabStorage[this.currentTab].sheets;
+            container.innerHTML = "";
+            if(!Object.keys(sheets).length) { container.innerHTML = `<div style="padding:15px; font-size:11px; color:#94a3b8;">No data loaded.</div>`; return; }
+            Object.keys(sheets).forEach(sheetName => {
+                const h = document.createElement('div');
+                h.className = 'tab-group-header';
+                h.innerHTML = `?? ${sheetName}`;
+                container.appendChild(h);
+                const g = document.createElement('div');
+                sheets[sheetName].h.forEach((name, idx) => {
+                    if(!name || String(name).includes("__EMPTY")) return;
+                    const isNum = sheets[sheetName].d.some(r => !isNaN(parseFloat(r[idx])) && r[idx] !== "");
+                    const item = document.createElement('div');
+                    item.className = 'field-item';
+                    item.draggable = true;
+                    item.innerHTML = `<span style="color:var(--c-blue); font-weight:800;">${isNum?'#':'Aa'}</span> ${name}`;
+                    item.ondragstart = (e) => e.dataTransfer.setData('field', JSON.stringify({tab: sheetName, name, idx, isNum}));
+                    g.appendChild(item);
+                });
+                container.appendChild(g);
+                h.onclick = () => g.style.display = g.style.display === 'none' ? 'block' : 'none';
+            });
+        },
+
+        updateStatusIndicator() {
+            const count = Object.keys(this.tabStorage[this.currentTab].sheets).length;
+            document.getElementById('stat-dot').className = count > 0 ? 'status-dot status-on' : 'status-dot';
+            document.getElementById('stat-text').innerText = count > 0 ? `${count} Tabs Active` : "System Standby";
+        },
+
+        dragS(e, val, type) { e.dataTransfer.setData(type, val); },
+        allow(e) { e.preventDefault(); },
+
+        dropNewChart(e) {
+            e.preventDefault();
+            const type = e.dataTransfer.getData('v');
+            if(type) this.createChartElement(type);
+        },
+
+        createChartElement(type, id = 'ch'+Date.now(), savedState = null) {
+            const card = document.createElement('div'); card.className = 'chart-card';
+            const state = savedState || { axis: null, values: [], title: "New Visual", type: type, url: "" };
+            
+            card.innerHTML = `<button class="deselect-btn" onclick="UI.removeElement('${id}')">DELETE</button>
+                             <input class="chart-title-input" value="${state.title}" id="t_${id}">
+                             <div class="chart-tags" id="tags_${id}"></div>
+                             <div class="chart-wrapper" id="wrap_${id}">
+                                ${type === 'table' ? `<div id="grid_${id}"></div>` : 
+                                  type === 'iframe' ? `<iframe src="${state.url}"></iframe>` : `<canvas id="${id}"></canvas>`}
+                             </div>`;
+            card.ondragover = (ev) => ev.preventDefault();
+            card.ondrop = (ev) => { if(type !== 'iframe') { ev.preventDefault(); ev.stopPropagation(); this.handleDataDrop(ev, id); } };
+            document.getElementById(this.currentTab).appendChild(card);
+            this.tabStorage[this.currentTab].activeFields[id] = state;
+
+            if(type !== 'table' && type !== 'iframe') {
+                this.charts[id] = new Chart(document.getElementById(id).getContext('2d'), {
+                    type: (type === 'heatmap') ? 'bar' : type,
+                    data: {labels:[], datasets:[]},
+                    options: { 
+                        responsive:true, 
+                        maintainAspectRatio:false, 
+                        onClick: (e, elements) => {
+                            if (elements.length > 0) {
+                                const index = elements[0].index;
+                                const datasetIndex = elements[0].datasetIndex;
+                                const label = this.charts[id].data.labels[index];
+                                const dsLabel = this.charts[id].data.datasets[datasetIndex].label;
+                                this.triggerDrill(id, label, dsLabel);
+                            }
+                        },
+                        plugins:{ 
+                            legend:{ display: !['heatmap'].includes(type), position: 'bottom' },
+                            datalabels: {
+                                // DYNAMIC COLOR LOGIC APPLIED HERE
+                                color: (ctx) => {
+                                    const bg = ctx.dataset.backgroundColor;
+                                    const hex = Array.isArray(bg) ? bg[ctx.dataIndex] : bg;
+                                    return this.getContrastColor(hex);
+                                },
+                                font: { weight: 'bold', size: 10 },
+                                formatter: (v, ctx) => (type === 'heatmap') ? (ctx.dataset.vData ? ctx.dataset.vData[ctx.dataIndex] : '') : v
+                            }
+                        },
+                        scales: (type === 'heatmap') ? { x: { stacked: true }, y: { stacked: true } } : {}
+                    }
+                });
+            }
+            if(state.axis) this.refresh(id, this.tabStorage[this.currentTab].sheets[state.axis.tab]);
+        },
+
+        triggerDrill(id, label, dsLabel) {
+            const state = this.tabStorage[this.currentTab].activeFields[id];
+            if (!state.axis) return;
+            const sheet = this.tabStorage[this.currentTab].sheets[state.axis.tab];
+            
+            const filtered = (state.type === 'heatmap') ? 
+                sheet.d.filter(r => String(r[state.axis.idx]) === dsLabel && String(r[state.values[0].idx]) === label) :
+                sheet.d.filter(r => String(r[state.axis.idx]) === label);
+
+            let h = `<table class="drill-table"><thead><tr>`;
+            sheet.h.forEach(col => h += `<th>${col}</th>`);
+            h += `</tr></thead><tbody>`;
+            filtered.forEach(r => {
+                h += `<tr>`;
+                sheet.h.forEach((_, i) => h += `<td>${r[i] || ''}</td>`);
+                h += `</tr>`;
+            });
+            
+            document.getElementById('drill-title').innerText = `DATA VIEW: ${label} (${filtered.length} ROWS)`;
+            document.getElementById('drill-table-container').innerHTML = h + `</tbody></table>`;
+            document.getElementById('drill-overlay').style.display = 'flex';
+        },
+
+        closeDrill() {
+            document.getElementById('drill-overlay').style.display = 'none';
+        },
+
+        handleDataDrop(e, id) {
+            const field = JSON.parse(e.dataTransfer.getData('field'));
+            const state = this.tabStorage[this.currentTab].activeFields[id];
+            if(!state.axis) state.axis = field;
+            else state.values = [field]; 
+            this.refresh(id, this.tabStorage[this.currentTab].sheets[field.tab]);
+        },
+
+        refresh(id, sheet) {
+            if(!sheet) return;
+            const state = this.tabStorage[this.currentTab].activeFields[id];
+            const tags = document.getElementById(`tags_${id}`);
+            tags.innerHTML = (state.axis ? `<span class="tag" style="border-color:var(--c-blue)">Y: ${state.axis.name}</span>` : '') + 
+                             state.values.map((v, i) => `<span class="tag">X: ${v.name} <span class="tag-remove" onclick="UI.removeField('${id}',${i})">×</span></span>`).join('');
+            
+            if(state.type === 'table') {
+                const cols = [state.axis, ...state.values].filter(Boolean);
+                let h = `<table class="visual-table"><thead><tr>${cols.map(c=>`<th>${c.name}</th>`).join('')}</tr></thead><tbody>`;
+                sheet.d.slice(0, 30).forEach(r => h += `<tr>${cols.map(c=>`<td>${r[c.idx]||''}</td>`).join('')}</tr>`);
+                document.getElementById(`grid_${id}`).innerHTML = h + `</tbody></table>`;
+            } else if(state.type === 'heatmap' && state.values.length) {
+                const yField = state.axis, xField = state.values[0];
+                const yLabels = [...new Set(sheet.d.map(r => String(r[yField.idx])))].slice(0, 12);
+                const xLabels = [...new Set(sheet.d.map(r => String(r[xField.idx])))].slice(0, 12);
+                let max = 0;
+                const matrix = yLabels.map(y => xLabels.map(x => {
+                    const count = sheet.d.filter(r => String(r[yField.idx]) === y && String(r[xField.idx]) === x).length;
+                    if(count > max) max = count; return count;
+                }));
+                const getHC = (v, m) => v === 0 ? 'rgba(242,244,244,0.5)' : (v/m <= 0.25 ? '#27AE60' : (v/m <= 0.50 ? '#f1c40f' : (v/m <= 0.75 ? '#e67e22' : '#e74c3c')));
+
+                this.charts[id]. data="{
+" labels: xLabels,
+                    datasets: yLabels.map((y, i) => ({ label: y, data: matrix[i].map(v => 1), backgroundColor: matrix[i].map(v => getHC(v, max)), vData: matrix[i] }))
+                };
+                this.charts[id].update();
+            } else if(state.values.length) {
+                const labels = [...new Set(sheet.d.map(r => String(r[state.axis.idx])))].slice(0,15);
+                const ds = state.values.map((v, i) => ({
+                    label: v.name,
+                    data: labels.map(l => {
+                        const m = sheet.d.filter(r => String(r[state.axis.idx]) === l);
+                        return v.isNum ? m.reduce((a, b) => a + (parseFloat(b[v.idx])||0), 0) : m.length;
+                    }),
+                    backgroundColor: this.proColors[i % 7]
+                }));
+                this.charts[id].data = { labels, datasets: ds };
+                this.charts[id].update();
+            }
+        },
+
+        removeField(id, idx) {
+            this.tabStorage[this.currentTab].activeFields[id].values.splice(idx, 1);
+            this.refresh(id, this.tabStorage[this.currentTab].sheets[this.tabStorage[this.currentTab].activeFields[id].axis.tab]);
+        },
+
+        removeElement(id) { 
+            document.getElementById(`t_${id}`).closest('.chart-card').remove(); 
+            delete this.tabStorage[this.currentTab].activeFields[id]; 
+            if(this.charts[id]) this.charts[id].destroy();
+        },
+
+        saveDashboard() {
+            localStorage.setItem('saved_dash_' + this.currentTab, JSON.stringify({ fields: this.tabStorage[this.currentTab].activeFields }));
+            alert("Dashboard Layout Saved.");
+        },
+
+        clearFullDashboard() { localStorage.clear(); location.reload(); },
+
+        loadSavedCharts() {
+            const data = localStorage.getItem('raw_data_' + this.currentTab);
+            if(data) this.tabStorage[this.currentTab].sheets = JSON.parse(data);
+            const lay = localStorage.getItem('saved_dash_' + this.currentTab);
+            document.getElementById(this.currentTab).innerHTML = "";
+            if(lay) {
+                const d = JSON.parse(lay);
+                Object.keys(d.fields).forEach(id => this.createChartElement(d.fields[id].type, id, d.fields[id]));
+            }
+        }
+    };
+</script></body>
+</html>
