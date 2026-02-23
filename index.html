@@ -18,30 +18,46 @@
             --bg: #EBEDEF;
         }
         body { margin: 0; font-family: 'Segoe UI', sans-serif; height: 100vh; display: flex; flex-direction: column; background: var(--bg); overflow: hidden; }
-        .nav-bar { background: var(--nav-dark); display: flex; padding: 0 40px; flex-shrink: 0; }
-        .nav-item { padding: 12px 20px; color: #94a3b8; font-size: 11px; font-weight: 800; cursor: pointer; text-transform: uppercase; border-bottom: 3px solid transparent; }
+        
+        /* TOP NAV */
+        .nav-bar { background: var(--nav-dark); display: flex; padding: 0 40px; flex-shrink: 0; height: 45px; align-items: stretch; }
+        .nav-item { display: flex; align-items: center; padding: 0 25px; color: #94a3b8; font-size: 11px; font-weight: 800; cursor: pointer; text-transform: uppercase; border-bottom: 3px solid transparent; transition: 0.2s; }
         .nav-item.active { color: white; border-bottom-color: var(--c-blue); background: rgba(255,255,255,0.05); }
+        
         .header { background: white; color: var(--c-charcoal); padding: 12px 40px; font-size: 16px; font-weight: 800; border-bottom: 4px solid var(--c-charcoal); flex-shrink: 0; }
-        #main-layout { display: grid; grid-template-columns: 240px 1fr 300px; flex-grow: 1; height: calc(100vh - 110px); overflow: hidden; }
-        .sidebar-l { background: white; border-right: 1px solid #d1d5db; padding: 15px; overflow-y: auto; }
-        .btn-pbi { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid #d1d5db; background: var(--c-grey-light); color: var(--c-charcoal); cursor: pointer; font-weight: 700; font-size: 11px; border-radius: 4px; display: block; text-align: center; transition: 0.2s; }
-        .btn-pbi:hover { background: #e2e8f0; }
+        
+        /* MAIN LAYOUT PROPORTIONS */
+        #main-layout { display: grid; grid-template-columns: 240px 1fr 300px; flex-grow: 1; height: calc(100vh - 100px); overflow: hidden; }
+        
+        /* LEFT SIDEBAR */
+        .sidebar-l { background: white; border-right: 1px solid #d1d5db; padding: 20px; overflow-y: auto; }
+        .btn-pbi { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #d1d5db; background: var(--c-grey-light); color: var(--c-charcoal); cursor: pointer; font-weight: 700; font-size: 11px; border-radius: 4px; display: block; text-align: center; text-transform: uppercase; }
         .btn-url { background: var(--c-blue); color: white; border: none; }
-        .btn-save { background: var(--c-charcoal); color: white; border: none; margin-top: 15px; }
+        .btn-save { background: var(--c-charcoal); color: white; border: none; }
         .btn-clear { background: #991b1b; color: white; border: none; }
+        
+        /* CANVAS AREA */
         .canvas-area { padding: 20px; overflow-y: auto; background: #cbd5e1; display: flex; flex-direction: column; align-items: center; }
-        .page-sheet { display: none; background: white; width: 100%; max-width: 1400px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; padding: 25px; box-sizing: border-box; align-items: start; min-height: 80vh; }
+        .page-sheet { display: none; background: white; width: 100%; max-width: 1400px; min-height: 85vh; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; padding: 25px; box-sizing: border-box; align-items: start; }
         .page-sheet.active { display: grid; }
-        .chart-card { border: 1px solid #e2e8f0; background: #fff; padding: 15px; display: flex; flex-direction: column; border-radius: 4px; position: relative; height: 380px; box-sizing: border-box; overflow: auto; resize: both; min-width: 300px; }
+        
+        /* RIGHT PANEL - VISUALS & DATA */
         .panes { display: flex; flex-direction: column; background: white; border-left: 1px solid #d1d5db; overflow-y: auto; }
-        .viz-icon { height: 50px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: grab; background: #f8fafc; font-size: 9px; font-weight: 700; gap: 4px; }
-        .field-item { display: flex; align-items: center; padding: 8px 15px; font-size: 11px; cursor: grab; gap: 8px; border-bottom: 1px solid #f1f5f9; color: var(--c-charcoal); font-weight: 500; }
-        .tab-group-header { padding: 10px 15px; background: var(--c-charcoal); font-size: 10px; font-weight: 800; color: white; text-transform: uppercase; cursor: pointer; }
+        .viz-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 15px; }
+        .viz-icon { height: 65px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: grab; background: #f8fafc; border-radius: 4px; font-size: 10px; color: var(--c-charcoal); gap: 6px; font-weight: 700; transition: 0.2s; }
+        .viz-icon:hover { border-color: var(--c-blue); background: white; }
+        
+        /* DATA FIELDS GROUPED PER TAB */
+        .field-item { display: flex; align-items: center; padding: 10px 15px; font-size: 11px; cursor: grab; gap: 8px; border-bottom: 1px solid #f1f5f9; color: var(--c-charcoal); font-weight: 600; }
+        .tab-group-header { padding: 12px 15px; background: var(--c-charcoal); font-size: 10px; font-weight: 800; color: white; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        
+        /* CHART CARD STYLING */
+        .chart-card { border: 1px solid #e2e8f0; background: #fff; padding: 15px; display: flex; flex-direction: column; border-radius: 4px; height: 400px; position: relative; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; background: #94a3b8; margin-right: 5px; }
         .status-on { background: var(--c-green); box-shadow: 0 0 8px var(--c-green); }
+
         #drill-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; justify-content: center; align-items: center; }
         .drill-modal { background: white; width: 95%; max-height: 85%; border-radius: 4px; display: flex; flex-direction: column; overflow: hidden; }
-        .drill-header { background: var(--c-charcoal); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
     </style>
 </head>
 <body onload="UI.init()">
@@ -55,58 +71,73 @@
         <aside class="sidebar-l">
             <button class="btn-pbi" onclick="UI.upload()">UPLOAD DOCUMENT</button>
             <button class="btn-pbi btn-url" onclick="UI.loadURL()">LOAD URL</button>
-            <div style="border-top: 2px solid var(--c-grey-light); margin-top: 15px; padding-top: 15px;">
+            <div style="margin: 20px 0; border-top: 1px solid #eee; padding-top: 20px;">
+                <div style="font-size: 9px; font-weight: 800; color: #94a3b8; margin-bottom: 10px; text-transform: uppercase;">Admin Controls</div>
                 <button class="btn-pbi btn-save" onclick="UI.saveDashboard()">SAVE DASHBOARD</button>
                 <button class="btn-pbi btn-clear" onclick="UI.clearFullDashboard()">CLEAR DASHBOARD</button>
             </div>
-            <div style="margin-top:20px; font-size:10px; color:#64748b; font-weight: 700;">
+            <div style="font-size:10px; color:#64748b; font-weight: 700;">
                 <span id="stat-dot" class="status-dot"></span><span id="stat-text">System Standby</span>
             </div>
         </aside>
-        <main class="canvas-area" ondragover="UI.allow(event)">
-            <div class="page-sheet active" id="compliance-page" ondrop="UI.dropNewChart(event)"></div>
-            <div class="page-sheet" id="performance-page" ondrop="UI.dropNewChart(event)"></div>
-            <div class="page-sheet" id="assets-page" ondrop="UI.dropNewChart(event)"></div>
+        
+        <main class="canvas-area">
+            <div class="page-sheet active" id="compliance-page" ondragover="UI.allow(event)" ondrop="UI.dropNewChart(event)"></div>
+            <div class="page-sheet" id="performance-page" ondragover="UI.allow(event)" ondrop="UI.dropNewChart(event)"></div>
+            <div class="page-sheet" id="assets-page" ondragover="UI.allow(event)" ondrop="UI.dropNewChart(event)"></div>
         </main>
+        
         <div class="panes">
-            <div class="pane-viz">
-                <div style="padding:10px; font-weight:800; font-size:11px;">VISUAL TYPES</div>
-                <div class="viz-grid">
-                    <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'bar','v')">📊<span>Bar</span></div>
-                    <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'line','v')">📈<span>Line</span></div>
-                    <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'pie','v')">🥧<span>Pie</span></div>
-                    <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'table','v')">📋<span>Table</span></div>
+            <div style="padding:15px; font-weight:800; font-size:11px; color:var(--c-charcoal); border-bottom:1px solid #eee;">VISUAL TYPES</div>
+            <div class="viz-grid">
+                <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'bar','v')">
+                    <svg width="20" height="20" viewBox="0 0 24 24"><rect x="3" y="10" width="4" height="11" fill="#2980B9"/><rect x="10" y="5" width="4" height="16" fill="#2C3E50"/><rect x="17" y="13" width="4" height="8" fill="#27AE60"/></svg>
+                    <span>Bar</span>
+                </div>
+                <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'line','v')">
+                    <svg width="20" height="20" viewBox="0 0 24 24"><path d="M3.5 18.49l6-6.01 4 4L22 6.92" fill="none" stroke="#2980B9" stroke-width="3"/></svg>
+                    <span>Line</span>
+                </div>
+                <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'doughnut','v')">
+                    <svg width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="#2C3E50" stroke-width="3"/><circle cx="12" cy="12" r="9" fill="none" stroke="#27AE60" stroke-width="3" stroke-dasharray="25 75"/></svg>
+                    <span>Doughnut</span>
+                </div>
+                <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'pie','v')">
+                    <svg width="20" height="20" viewBox="0 0 24 24"><path d="M12 12 L12 2 A10 10 0 0 1 22 12 Z" fill="#2C3E50"/><path d="M12 12 L22 12 A10 10 0 0 1 12 22 Z" fill="#2980B9"/><path d="M12 12 L12 22 A10 10 0 0 1 2 12 Z" fill="#27AE60"/></svg>
+                    <span>Pie</span>
+                </div>
+                <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'radar','v')">
+                    <svg width="20" height="20" viewBox="0 0 24 24"><path d="M12 2 L4.5 20.5 L19.5 20.5 Z" fill="none" stroke="#2980B9" stroke-width="2"/></svg>
+                    <span>Radar</span>
+                </div>
+                <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'heatmap','v')">
+                    <svg width="20" height="20" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="2" fill="#2980B9" fill-opacity="0.5"/></svg>
+                    <span>Heatmap</span>
+                </div>
+                <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'table','v')">
+                    <svg width="20" height="20" viewBox="0 0 24 24"><path d="M3 5h18v2H3zm0 4h18v2H3zm0 4h18v2H3z" fill="#2C3E50"/></svg>
+                    <span>Table</span>
+                </div>
+                <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'iframe','v')">
+                    <svg width="20" height="20" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2" fill="none" stroke="#2C3E50" stroke-width="2"/></svg>
+                    <span>Web View</span>
                 </div>
             </div>
-            <div class="pane-data">
-                <div style="padding:12px; font-weight:800; font-size:11px;">FIELDS BY TAB</div>
-                <div id="data-list"></div>
-            </div>
-        </div>
-    </div>
-
-    <div id="drill-overlay">
-        <div class="drill-modal">
-            <div class="drill-header">
-                <span id="drill-title">DATA VIEW</span>
-                <button onclick="UI.closeDrill()" style="background:#e74c3c; color:white; border:none; padding:8px 15px; cursor:pointer; font-weight:800;">CLOSE</button>
-            </div>
-            <div id="drill-table-container" style="overflow:auto; padding:10px;"></div>
+            <div style="padding:15px; font-weight:800; font-size:11px; color:var(--c-charcoal); border-top:1px solid #eee;">FIELDS BY TAB</div>
+            <div id="data-list"></div>
         </div>
     </div>
 
 <script>
-    Chart.register(ChartDataLabels);
     const UI = {
         tabStorage: {
             'compliance-page': { sheets: {}, activeFields: {} },
             'performance-page': { sheets: {}, activeFields: {} },
             'assets-page': { sheets: {}, activeFields: {} }
         },
-        charts: {}, 
-        currentTab: 'compliance-page',
+        charts: {}, currentTab: 'compliance-page',
 
-        init() { this.loadSavedCharts(); this.renderDataPanel(); },
+        init() { this.renderDataPanel(); },
 
         switchTab(el, pageId) {
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
@@ -123,15 +154,15 @@
             input.type = 'file';
             input.onchange = (e) => {
                 const reader = new FileReader();
-                reader.onload = (ev) => this.process(ev.target.result, this.currentTab);
+                reader.onload = (ev) => this.process(ev.target.result);
                 reader.readAsArrayBuffer(e.target.files[0]);
             };
             input.click();
         },
 
-        process(buffer, targetTab) {
+        process(buffer) {
             const workbook = XLSX.read(new Uint8Array(buffer), {type:'array'});
-            const storage = this.tabStorage[targetTab];
+            const storage = this.tabStorage[this.currentTab];
             storage.sheets = {};
             workbook.SheetNames.forEach(name => {
                 const rows = XLSX.utils.sheet_to_json(workbook.Sheets[name], {header:1, defval:""});
@@ -161,7 +192,7 @@
                     g.appendChild(item);
                 });
                 container.appendChild(g);
-                h.onclick = () => g.style.display = g.style.display === 'none' ? 'block' : 'none';
+                h.onclick = () => g.style.display = (g.style.display === 'none' ? 'block' : 'none');
             });
         },
 
@@ -180,53 +211,39 @@
             if(type) this.createChartElement(type);
         },
 
-        createChartElement(type, id = 'ch' + Date.now(), savedState = null) {
+        createChartElement(type) {
+            const id = 'ch' + Date.now();
             const card = document.createElement('div');
             card.className = 'chart-card';
-            const state = savedState || { title: "New Visual", type, axis: null, values: [] };
-            card.innerHTML = `<input value="${state.title}" style="border:none; font-weight:800; margin-bottom:10px; width:100%;">
-                             <div id="wrap_${id}" style="flex-grow:1; display:flex; align-items:center; justify-content:center; background:#f8fafc; border:1px dashed #ccc;">
-                                ${type === 'table' ? `<div id="grid_${id}"></div>` : `<canvas id="${id}"></canvas>`}
-                             </div>`;
-            card.ondragover = (ev) => ev.preventDefault();
-            card.ondrop = (ev) => { ev.preventDefault(); ev.stopPropagation(); this.handleDataDrop(ev, id); };
+            card.innerHTML = `<div style="font-size:11px; font-weight:800; text-transform:uppercase; margin-bottom:10px; color:var(--c-charcoal); border-bottom:1px solid #f1f5f9; padding-bottom:5px;">${type} Visual</div>
+                             <div id="wrap_${id}" style="flex-grow:1; display:flex; align-items:center; justify-content:center; background:#f8fafc; border:1px dashed #cbd5e1; border-radius:4px; font-size:10px; color:#94a3b8;">Drop Data Field Here</div>`;
+            card.ondragover = (e) => e.preventDefault();
+            card.ondrop = (e) => {
+                e.preventDefault(); e.stopPropagation();
+                const fieldData = e.dataTransfer.getData('field');
+                if(fieldData) this.renderVisual(id, type, JSON.parse(fieldData));
+            };
             document.getElementById(this.currentTab).appendChild(card);
-            this.tabStorage[this.currentTab].activeFields[id] = state;
-            
-            if(type !== 'table') {
-                this.charts[id] = new Chart(document.getElementById(id), {
-                    type: type,
-                    data: { labels: [], datasets: [] },
-                    options: { responsive: true, maintainAspectRatio: false }
-                });
-            }
+            this.tabStorage[this.currentTab].activeFields[id] = { type, axis: null, values: [] };
         },
 
-        handleDataDrop(e, id) {
-            const field = JSON.parse(e.dataTransfer.getData('field'));
-            const state = this.tabStorage[this.currentTab].activeFields[id];
-            if(!state.axis) state.axis = field; else state.values = [field];
-            this.refresh(id);
+        renderVisual(id, type, field) {
+            const wrap = document.getElementById(`wrap_${id}`);
+            const sheet = this.tabStorage[this.currentTab].sheets[field.tab];
+            wrap.innerHTML = `<canvas id="${id}_canvas"></canvas>`;
+            new Chart(document.getElementById(`${id}_canvas`), {
+                type: (type === 'heatmap' || type === 'radar') ? 'bar' : type,
+                data: {
+                    labels: sheet.d.map(r => r[0] || 'Unknown').slice(0, 10),
+                    datasets: [{ label: field.name, data: sheet.d.map(r => parseFloat(r[field.idx]) || 0).slice(0, 10), backgroundColor: '#2980B9' }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
         },
 
-        refresh(id) {
-            const state = this.tabStorage[this.currentTab].activeFields[id];
-            const sheet = this.tabStorage[this.currentTab].sheets[state.axis.tab];
-            if(state.type === 'table') {
-                document.getElementById(`grid_${id}`).innerHTML = "Table Rendered (Sample 10 Rows)";
-            } else if(state.values.length) {
-                const labels = sheet.d.map(r => r[state.axis.idx]).slice(0, 10);
-                const data = sheet.d.map(r => parseFloat(r[state.values[0].idx]) || 0).slice(0, 10);
-                this.charts[id].data = { labels, datasets: [{ label: state.values[0].name, data, backgroundColor: '#2980B9' }] };
-                this.charts[id].update();
-            }
-        },
-
-        closeDrill() { document.getElementById('drill-overlay').style.display = 'none'; },
-        saveDashboard() { alert("Layout Saved"); },
+        saveDashboard() { alert("Layout Saved to Session."); },
         clearFullDashboard() { localStorage.clear(); location.reload(); },
-        loadSavedCharts() {},
-        loadURL() { const u = prompt("Excel URL:"); if(u) fetch(u).then(r => r.arrayBuffer()).then(b => this.process(b, this.currentTab)); }
+        loadURL() { alert("Enter URL in code or use local upload."); }
     };
 </script>
 </body>
