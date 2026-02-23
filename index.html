@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <title>Khusela Professional Dashboard - Drill-Through Fixed</title>
+    <title>Khusela Professional Dashboard</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
@@ -84,14 +84,14 @@
             <div class="pane-viz">
                 <div style="padding:8px; font-weight:800; font-size:11px; color:var(--c-charcoal); text-transform: uppercase;">Visual Types</div>
                 <div class="viz-grid">
-                    <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'bar','v')"><svg viewbox="0 0 24 24" width="18"><rect x="3" y="10" width="4" height="11" fill="#2980B9" /><rect x="10" y="5" width="4" height="16" fill="#2C3E50" /><rect x="17" y="13" width="4" height="8" fill="#27AE60" /></svg><span>Bar</span></div>
-                    <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'line','v')"><svg viewbox="0 0 24 24" width="18"><path d="M3.5 18.49l6-6.01 4 4L22 6.92" fill="none" stroke="#2980B9" stroke-width="3" /></svg><span>Line</span></div>
-                    <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'doughnut','v')"><svg viewbox="0 0 24 24" width="18"><circle cx="12" cy="12" r="10" fill="none" stroke="#2C3E50" stroke-width="4" /><circle cx="12" cy="12" r="10" fill="none" stroke="#27AE60" stroke-width="4" stroke-dasharray="30 70" /></svg><span>Doughnut</span></div>
-                    <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'pie','v')"><svg viewbox="0 0 24 24" width="18"><path d="M12 12 L12 2 A10 10 0 0 1 22 12 Z" fill="#2C3E50" /><path d="M12 12 L22 12 A10 10 0 0 1 12 22 Z" fill="#2980B9" /><path d="M12 12 L12 22 A10 10 0 0 1 2 12 Z" fill="#27AE60" /></svg><span>Pie</span></div>
-                    <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'radar','v')"><svg viewbox="0 0 24 24" width="18"><path d="M12 2 L4.5 20.5 L19.5 20.5 Z" fill="none" stroke="#2980B9" stroke-width="2" /><circle cx="12" cy="12" r="9" fill="none" stroke="#ccc" stroke-width="1" stroke-dasharray="2,2" /></svg><span>Radar</span></div>
-                    <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'heatmap','v')"><svg viewbox="0 0 24 24" width="18"><rect x="2" y="2" width="20" height="20" rx="2" fill="#2980B9" fill-opacity="0.3" /><rect x="6" y="6" width="12" height="12" rx="1" fill="#2980B9" fill-opacity="0.7" /></svg><span>Heatmap</span></div>
-                    <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'table','v')"><svg viewbox="0 0 24 24" width="18"><path d="M3 5h18v2H3zm0 4h18v2H3zm0 4h18v2H3zm0 4h18v2H3z" fill="#2C3E50" /></svg><span>Table</span></div>
-                    <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'iframe','v')"><svg viewbox="0 0 24 24" width="18"><rect x="2" y="4" width="20" height="16" rx="2" fill="none" stroke="#2C3E50" stroke-width="2" /><line x1="2" y1="8" x2="22" y2="8" stroke="#2C3E50" stroke-width="2" /></svg><span>Web View</span></div>
+                    <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'bar','v')">Bar</div>
+                    <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'line','v')">Line</div>
+                    <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'doughnut','v')">Doughnut</div>
+                    <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'pie','v')">Pie</div>
+                    <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'radar','v')">Radar</div>
+                    <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'heatmap','v')">Heatmap</div>
+                    <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'table','v')">Table</div>
+                    <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'iframe','v')">Web View</div>
                 </div>
             </div>
             <div class="pane-data">
@@ -105,7 +105,7 @@
         <div class="drill-modal">
             <div class="drill-header">
                 <span id="drill-title">DRILL-THROUGH DATA</span>
-                <button type="button" onclick="UI.closeDrill()" style="background:#e74c3c; color:white; border:none; padding:8px 15px; cursor:pointer; font-weight:800; border-radius:3px;">CLOSE DETAILS</button>
+                <button type="button" onclick="UI.closeDrill()" style="background:#e74c3c; color:white; border:none; padding:8px 15px; cursor:pointer; font-weight:800; border-radius:3px;">CLOSE</button>
             </div>
             <div class="drill-body" id="drill-table-container"></div>
         </div>
@@ -113,8 +113,24 @@
 
 <script>
     Chart.register(ChartDataLabels);
+
+    // --- DOMAIN GUARD ---
+    const ALLOWED_ROOT = 'mybuildingsemea.com';
+    const currentHost = window.location.hostname;
+    const isAuthorized = currentHost === ALLOWED_ROOT || currentHost.endsWith('.' + ALLOWED_ROOT) || currentHost === 'localhost' || currentHost === '127.0.0.1' || currentHost === 'brenda-mybuildings.github.io';
+
+    if (!isAuthorized) {
+        document.body.innerHTML = `<div style="height:100vh; display:flex; align-items:center; justify-content:center; background:#1F2937; color:white; font-family:sans-serif; text-align:center;">
+            <div style="padding:40px; border-top:4px solid #ef4444; background:#374151; border-radius:8px;">
+                <h1>RESTRICTED ACCESS</h1>
+                <p>This application is only authorized for <strong>${ALLOWED_ROOT}</strong>.</p>
+            </div>
+        </div>`;
+        throw new Error("Unauthorized Domain.");
+    }
+
     const UI = {
-        tabStorage: { 'compliance-page': { sheets: {}, activeFields: {}, sourceName: "" }, 'performance-page': { sheets: {}, activeFields: {}, sourceName: "" }, 'assets-page': { sheets: {}, activeFields: {}, sourceName: "" } },
+        tabStorage: { 'compliance-page': { sheets: {}, activeFields: {} }, 'performance-page': { sheets: {}, activeFields: {} }, 'assets-page': { sheets: {}, activeFields: {} } },
         charts: {}, currentTab: 'compliance-page', proColors: ['#2C3E50', '#2980B9', '#27AE60', '#95A5A6', '#1A1A1A', '#34495E', '#16A085'],
 
         getContrastColor(hex) {
@@ -138,19 +154,13 @@
         },
 
         async loadURL() {
-            const url = prompt("Excel URL:");
+            const url = prompt("Excel Direct Download URL:");
             if(!url) return;
-            document.getElementById('stat-text').innerText = "Fetching URL...";
             try {
                 const response = await fetch(url);
-                if (!response.ok) throw new Error('Network response was not ok');
                 const arrayBuffer = await response.arrayBuffer();
                 this.process(arrayBuffer, this.currentTab);
-                alert("Data Loaded Successfully from URL");
-            } catch(e) { 
-                alert("Failed to load URL. Ensure the link is a direct download link."); 
-                document.getElementById('stat-text').innerText = "URL Error";
-            }
+            } catch(e) { alert("CORS Error or Invalid Link. Please use the Upload button for local files."); }
         },
 
         upload() {
@@ -184,7 +194,6 @@
             const container = document.getElementById('data-list');
             const sheets = this.tabStorage[this.currentTab].sheets;
             container.innerHTML = "";
-            if(!Object.keys(sheets).length) { container.innerHTML = `<div style="padding:15px; font-size:11px; color:#94a3b8;">No data loaded.</div>`; return; }
             Object.keys(sheets).forEach(sheetName => {
                 const h = document.createElement('div'); h.className = 'tab-group-header'; h.innerHTML = `📁 ${sheetName}`;
                 container.appendChild(h);
@@ -195,7 +204,7 @@
                     const item = document.createElement('div');
                     item.className = 'field-item';
                     item.draggable = true;
-                    item.innerHTML = `<span style="color:var(--c-blue); font-weight:800;">${isNum?'#':'Aa'}</span> ${name}`;
+                    item.innerHTML = `<span>${isNum?'#':'Aa'}</span> ${name}`;
                     item.ondragstart = (e) => e.dataTransfer.setData('field', JSON.stringify({tab: sheetName, name, idx, isNum}));
                     g.appendChild(item);
                 });
@@ -207,7 +216,7 @@
         updateStatusIndicator() {
             const count = Object.keys(this.tabStorage[this.currentTab].sheets).length;
             document.getElementById('stat-dot').className = count > 0 ? 'status-dot status-on' : 'status-dot';
-            document.getElementById('stat-text').innerText = count > 0 ? `${count} Tabs Active` : "System Standby";
+            document.getElementById('stat-text').innerText = count > 0 ? `${count} Tabs Loaded` : "System Standby";
         },
 
         dragS(e, val, type) { e.dataTransfer.setData(type, val); },
@@ -223,14 +232,13 @@
             const card = document.createElement('div'); card.className = 'chart-card';
             const state = savedState || { axis: null, values: [], title: "New Visual", type: type, url: "" };
             
-            // FIX: Prompt for URL if it's an iframe and we aren't loading from a save
             if (type === 'iframe' && !savedState) {
-                const inputUrl = prompt("Enter Website URL (must start with https://):", "https://www.wikipedia.org");
+                const inputUrl = prompt("Enter Website URL:", "https://");
                 if (inputUrl) state.url = inputUrl;
             }
 
             card.innerHTML = `<button class="deselect-btn" onclick="UI.removeElement('${id}')">DELETE</button>
-                             <input class="chart-title-input" value="${state.title}" id="t_${id}">
+                             <input class="chart-title-input" value="${state.title}" id="t_${id}" onchange="UI.tabStorage['${this.currentTab}'].activeFields['${id}'].title = this.value">
                              <div class="chart-tags" id="tags_${id}"></div>
                              <div class="chart-wrapper" id="wrap_${id}">
                                 ${type === 'table' ? `<div id="grid_${id}"></div>` : type === 'iframe' ? `<iframe src="${state.url}"></iframe>` : `<canvas id="${id}"></canvas>`}
@@ -263,11 +271,9 @@
                                     const hex = Array.isArray(bg) ? bg[ctx.dataIndex] : bg;
                                     return this.getContrastColor(hex);
                                 },
-                                font: { weight: 'bold', size: 10 },
                                 formatter: (v, ctx) => (type === 'heatmap') ? (ctx.dataset.vData ? ctx.dataset.vData[ctx.dataIndex] : '') : v
                             }
-                        },
-                        scales: (type === 'heatmap') ? { x: { stacked: true }, y: { stacked: true } } : {}
+                        }
                     }
                 });
             }
@@ -276,21 +282,14 @@
 
         triggerDrill(id, label, dsLabel) {
             const state = this.tabStorage[this.currentTab].activeFields[id];
-            if (!state.axis) return;
             const sheet = this.tabStorage[this.currentTab].sheets[state.axis.tab];
             const filtered = (state.type === 'heatmap') ? 
                 sheet.d.filter(r => String(r[state.axis.idx]) === dsLabel && String(r[state.values[0].idx]) === label) :
                 sheet.d.filter(r => String(r[state.axis.idx]) === label);
 
-            let h = `<table class="drill-table"><thead><tr>`;
-            sheet.h.forEach(col => h += `<th>${col}</th>`);
-            h += `</tr></thead><tbody>`;
-            filtered.forEach(r => {
-                h += `<tr>`;
-                sheet.h.forEach((_, i) => h += `<td>${r[i] || ''}</td>`);
-                h += `</tr>`;
-            });
-            document.getElementById('drill-title').innerText = `DATA VIEW: ${label} (${filtered.length} ROWS)`;
+            let h = `<table class="drill-table"><thead><tr>${sheet.h.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>`;
+            filtered.forEach(r => h += `<tr>${sheet.h.map((_, i) => `<td>${r[i] || ''}</td>`).join('')}</tr>`);
+            document.getElementById('drill-title').innerText = `DRILL: ${label}`;
             document.getElementById('drill-table-container').innerHTML = h + `</tbody></table>`;
             document.getElementById('drill-overlay').style.display = 'flex';
         },
@@ -308,7 +307,7 @@
             if(!sheet) return;
             const state = this.tabStorage[this.currentTab].activeFields[id];
             const tags = document.getElementById(`tags_${id}`);
-            tags.innerHTML = (state.axis ? `<span class="tag" style="border-color:var(--c-blue)">Y: ${state.axis.name}</span>` : '') + 
+            tags.innerHTML = (state.axis ? `<span class="tag">Y: ${state.axis.name}</span>` : '') + 
                             state.values.map((v, i) => `<span class="tag">X: ${v.name} <span class="tag-remove" onclick="UI.removeField('${id}',${i})">×</span></span>`).join('');
             
             if(state.type === 'table') {
@@ -316,22 +315,6 @@
                 let h = `<table class="visual-table"><thead><tr>${cols.map(c=>`<th>${c.name}</th>`).join('')}</tr></thead><tbody>`;
                 sheet.d.slice(0, 30).forEach(r => h += `<tr>${cols.map(c=>`<td>${r[c.idx]||''}</td>`).join('')}</tr>`);
                 document.getElementById(`grid_${id}`).innerHTML = h + `</tbody></table>`;
-            } else if(state.type === 'heatmap' && state.values.length) {
-                const yField = state.axis, xField = state.values[0];
-                const yLabels = [...new Set(sheet.d.map(r => String(r[yField.idx])))].slice(0, 12);
-                const xLabels = [...new Set(sheet.d.map(r => String(r[xField.idx])))].slice(0, 12);
-                let max = 0;
-                const matrix = yLabels.map(y => xLabels.map(x => {
-                    const count = sheet.d.filter(r => String(r[yField.idx]) === y && String(r[xField.idx]) === x).length;
-                    if(count > max) max = count; return count;
-                }));
-                const getHC = (v, m) => v === 0 ? 'rgba(242,244,244,0.5)' : (v/m <= 0.25 ? '#27AE60' : (v/m <= 0.50 ? '#f1c40f' : (v/m <= 0.75 ? '#e67e22' : '#e74c3c')));
-
-                this.charts[id].data = {
-                    labels: xLabels,
-                    datasets: yLabels.map((y, i) => ({ label: y, data: matrix[i].map(v => 1), backgroundColor: matrix[i].map(v => getHC(v, max)), vData: matrix[i] }))
-                };
-                this.charts[id].update();
             } else if(state.values.length) {
                 const labels = [...new Set(sheet.d.map(r => String(r[state.axis.idx])))].slice(0,15);
                 const ds = state.values.map((v, i) => ({
@@ -347,31 +330,14 @@
             }
         },
 
-        removeField(id, idx) {
-            this.tabStorage[this.currentTab].activeFields[id].values.splice(idx, 1);
-            const axis = this.tabStorage[this.currentTab].activeFields[id].axis;
-            if(axis) this.refresh(id, this.tabStorage[this.currentTab].sheets[axis.tab]);
-        },
-
-        removeElement(id) { 
-            const el = document.getElementById(`t_${id}`);
-            if(el) el.closest('.chart-card').remove(); 
-            delete this.tabStorage[this.currentTab].activeFields[id]; 
-            if(this.charts[id]) this.charts[id].destroy();
-        },
-
-        saveDashboard() {
-            localStorage.setItem('saved_dash_' + this.currentTab, JSON.stringify({ fields: this.tabStorage[this.currentTab].activeFields }));
-            alert("Dashboard Layout Saved.");
-        },
-
+        removeField(id, idx) { this.tabStorage[this.currentTab].activeFields[id].values.splice(idx, 1); this.refresh(id, this.tabStorage[this.currentTab].sheets[this.tabStorage[this.currentTab].activeFields[id].axis.tab]); },
+        removeElement(id) { document.getElementById(`t_${id}`).closest('.chart-card').remove(); delete this.tabStorage[this.currentTab].activeFields[id]; },
+        saveDashboard() { localStorage.setItem('saved_dash_' + this.currentTab, JSON.stringify({ fields: this.tabStorage[this.currentTab].activeFields })); alert("Saved."); },
         clearFullDashboard() { localStorage.clear(); location.reload(); },
-
         loadSavedCharts() {
             const data = localStorage.getItem('raw_data_' + this.currentTab);
             if(data) this.tabStorage[this.currentTab].sheets = JSON.parse(data);
             const lay = localStorage.getItem('saved_dash_' + this.currentTab);
-            document.getElementById(this.currentTab).innerHTML = "";
             if(lay) {
                 const d = JSON.parse(lay);
                 Object.keys(d.fields).forEach(id => this.createChartElement(d.fields[id].type, id, d.fields[id]));
