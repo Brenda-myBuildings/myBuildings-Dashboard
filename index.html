@@ -1,217 +1,131 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <title>Khusela Professional Dashboard</title>
+    <meta charset="UTF-8">
+    <title>Khusela Analytics - Fixed</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <style>
-        :root {
-            --c-charcoal: #2C3E50;
-            --c-black: #1A1A1A;
-            --c-blue: #2980B9;
-            --c-green: #27AE60;
-            --c-grey-light: #F2F4F4;
-            --c-grey-mid: #95A5A6;
-            --nav-dark: #1F2937;
-            --bg: #EBEDEF;
-        }
-        body { margin: 0; font-family: 'Segoe UI', sans-serif; height: 100vh; display: flex; flex-direction: column; background: var(--bg); overflow: hidden; }
-        .nav-bar { background: var(--nav-dark); display: flex; padding: 0 40px; flex-shrink: 0; }
-        .nav-item { padding: 12px 20px; color: #94a3b8; font-size: 11px; font-weight: 800; cursor: pointer; text-transform: uppercase; border-bottom: 3px solid transparent; }
-        .nav-item.active { color: white; border-bottom-color: var(--c-blue); background: rgba(255,255,255,0.05); }
-        .header { background: white; color: var(--c-charcoal); padding: 12px 40px; font-size: 16px; font-weight: 800; border-bottom: 4px solid var(--c-charcoal); flex-shrink: 0; }
-        #main-layout { display: grid; grid-template-columns: 240px 1fr 300px; flex-grow: 1; height: calc(100vh - 110px); overflow: hidden; }
-        .sidebar-l { background: white; border-right: 1px solid #d1d5db; padding: 15px; overflow-y: auto; }
-        .btn-pbi { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid #d1d5db; background: var(--c-grey-light); color: var(--c-charcoal); cursor: pointer; font-weight: 700; font-size: 11px; border-radius: 4px; display: block; text-align: center; transition: 0.2s; }
-        .btn-pbi:hover { background: #e2e8f0; }
-        .btn-url { background: var(--c-blue); color: white; border: none; }
-        .btn-save { background: var(--c-charcoal); color: white; border: none; margin-top: 15px; }
-        .btn-clear { background: #991b1b; color: white; border: none; }
-        .canvas-area { padding: 20px; overflow-y: auto; background: #cbd5e1; display: flex; flex-direction: column; align-items: center; min-height: 500px; border: 2px dashed rgba(0,0,0,0.1); }
-        .page-sheet { display: none; background: white; width: 100%; max-width: 1400px; min-height: 80vh; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; padding: 25px; box-sizing: border-box; align-items: start; }
+        :root { --dark: #1F2937; --blue: #2980B9; --bg: #EBEDEF; }
+        body { margin: 0; font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; background: var(--bg); }
+        .nav-bar { background: var(--dark); display: flex; padding: 0 20px; }
+        .nav-item { padding: 15px 20px; color: #94a3b8; cursor: pointer; font-weight: bold; border-bottom: 3px solid transparent; }
+        .nav-item.active { color: white; border-bottom-color: var(--blue); }
+        #main-layout { display: grid; grid-template-columns: 200px 1fr 250px; flex-grow: 1; overflow: hidden; }
+        .sidebar { background: white; padding: 15px; border-right: 1px solid #ccc; }
+        .canvas { padding: 20px; overflow-y: auto; background: #cbd5e1; min-height: 500px; }
+        .page-sheet { display: none; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
         .page-sheet.active { display: grid; }
-        .chart-card { border: 1px solid #e2e8f0; background: #fff; padding: 15px; display: flex; flex-direction: column; border-radius: 4px; position: relative; height: 380px; box-sizing: border-box; overflow: hidden; }
-        .viz-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 10px; }
-        .viz-icon { height: 60px; border: 1px solid #d1d5db; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: grab; background: #f8fafc; border-radius: 4px; font-size: 10px; font-weight: bold; color: var(--c-charcoal); }
-        .viz-icon:active { cursor: grabbing; border-color: var(--c-blue); }
-        .field-item { display: flex; align-items: center; padding: 8px 15px; font-size: 11px; cursor: grab; gap: 8px; border-bottom: 1px solid #f1f5f9; color: var(--c-charcoal); font-weight: 500; background: white; }
-        .tab-group-header { padding: 10px 15px; background: var(--c-charcoal); font-size: 10px; font-weight: 800; color: white; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.1); cursor: pointer; }
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; background: #94a3b8; margin-right: 5px; }
-        .status-on { background: var(--c-green); box-shadow: 0 0 8px var(--c-green); }
-        #drill-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; justify-content: center; align-items: center; }
-        .drill-modal { background: white; width: 95%; max-height: 85%; border-radius: 4px; display: flex; flex-direction: column; overflow: hidden; }
+        .viz-icon { padding: 20px; margin: 10px 0; border: 2px solid #ddd; background: #f9fafb; cursor: grab; text-align: center; font-weight: bold; border-radius: 8px; }
+        .viz-icon:hover { border-color: var(--blue); }
+        .chart-card { background: white; height: 300px; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: relative; }
+        .pane-data { background: white; border-left: 1px solid #ccc; padding: 10px; }
+        .field-item { padding: 8px; background: #eee; margin-bottom: 5px; cursor: grab; font-size: 12px; border-radius: 4px; }
     </style>
 </head>
-<body onload="UI.init()">
-    <nav class="nav-bar">
-        <div class="nav-item active" onclick="UI.switchTab(this, 'compliance-page')">Drone Deploy</div>
-        <div class="nav-item" onclick="UI.switchTab(this, 'performance-page')">Assets</div>
-        <div class="nav-item" onclick="UI.switchTab(this, 'assets-page')">Forecast</div>
-    </nav>
-    <div class="header">KHUSELA | ANALYTICS</div>
+<body>
+    <div class="nav-bar">
+        <div class="nav-item active" onclick="UI.switchTab(this, 'drone')">Drone Deploy</div>
+        <div class="nav-item" onclick="UI.switchTab(this, 'assets')">Assets</div>
+        <div class="nav-item" onclick="UI.switchTab(this, 'forecast')">Forecast</div>
+    </div>
     <div id="main-layout">
-        <aside class="sidebar-l">
-            <button class="btn-pbi" onclick="UI.upload()">UPLOAD DOCUMENT</button>
-            <button class="btn-pbi btn-url" onclick="UI.loadURL()">LOAD URL</button>
-            <button class="btn-pbi btn-save" onclick="UI.saveDashboard()">SAVE DASHBOARD</button>
-            <button class="btn-pbi btn-clear" onclick="UI.clearFullDashboard()">CLEAR DASHBOARD</button>
-            <div style="margin-top:20px; font-size:10px; font-weight: 700; color:#64748b;">
-                <span id="stat-dot" class="status-dot"></span><span id="stat-text">System Standby</span>
-            </div>
+        <aside class="sidebar">
+            <button onclick="UI.upload()" style="width:100%; padding:10px; cursor:pointer;">UPLOAD EXCEL</button>
         </aside>
-        <main class="canvas-area" ondragover="UI.allow(event)" ondrop="UI.dropNewChart(event)">
-            <div class="page-sheet active" id="compliance-page"></div>
-            <div class="page-sheet" id="performance-page"></div>
-            <div class="page-sheet" id="assets-page"></div>
+        <main class="canvas" ondragover="event.preventDefault()" ondrop="UI.dropNewChart(event)">
+            <div id="drone" class="page-sheet active"></div>
+            <div id="assets" class="page-sheet"></div>
+            <div id="forecast" class="page-sheet"></div>
         </main>
-        <div class="panes">
-            <div class="pane-viz">
-                <div style="padding:10px; font-weight:800; font-size:11px; text-transform:uppercase;">Visual Types</div>
-                <div class="viz-grid">
-                    <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'bar','v')">📊 Bar</div>
-                    <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'line','v')">📈 Line</div>
-                    <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'pie','v')">🥧 Pie</div>
-                    <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'table','v')">📋 Table</div>
-                </div>
-            </div>
-            <div class="pane-data">
-                <div style="padding:12px; font-weight:800; font-size:11px; text-transform:uppercase;">Fields by Tab</div>
-                <div id="data-list"></div>
-            </div>
-        </div>
+        <aside class="pane-data">
+            <div style="font-weight:bold; margin-bottom:10px;">Visuals (Drag Me)</div>
+            <div class="viz-icon" draggable="true" ondragstart="event.dataTransfer.setData('v','bar')">📊 Bar Chart</div>
+            <div class="viz-icon" draggable="true" ondragstart="event.dataTransfer.setData('v','line')">📈 Line Chart</div>
+            <hr>
+            <div style="font-weight:bold; margin-bottom:10px;">Fields</div>
+            <div id="data-list"></div>
+        </aside>
     </div>
 
     <script>
         const UI = {
-            tabStorage: {
-                'compliance-page': { sheets: {}, activeFields: {} },
-                'performance-page': { sheets: {}, activeFields: {} },
-                'assets-page': { sheets: {}, activeFields: {} }
-            },
-            charts: {},
-            currentTab: 'compliance-page',
-
-            init() {
-                console.log("UI Initialized");
-                this.loadSavedCharts();
-                this.renderDataPanel();
-            },
-
-            switchTab(el, pageId) {
+            data: {},
+            currentTab: 'drone',
+            
+            switchTab(el, id) {
                 document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
                 el.classList.add('active');
                 document.querySelectorAll('.page-sheet').forEach(p => p.classList.remove('active'));
-                document.getElementById(pageId).classList.add('active');
-                this.currentTab = pageId;
-                this.renderDataPanel();
+                document.getElementById(id).classList.add('active');
+                this.currentTab = id;
             },
 
             upload() {
                 const input = document.createElement('input');
                 input.type = 'file';
-                input.accept = ".xlsx, .xls, .csv";
                 input.onchange = (e) => {
                     const reader = new FileReader();
-                    reader.onload = (ev) => this.process(ev.target.result);
+                    reader.onload = (ev) => {
+                        const wb = XLSX.read(new Uint8Array(ev.target.result), {type:'array'});
+                        const sheetName = wb.SheetNames[0];
+                        const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], {header:1});
+                        this.data = { h: rows[0], d: rows.slice(1) };
+                        this.renderFields();
+                    };
                     reader.readAsArrayBuffer(e.target.files[0]);
                 };
                 input.click();
             },
 
-            process(buffer) {
-                const workbook = XLSX.read(new Uint8Array(buffer), {type:'array'});
-                const storage = this.tabStorage[this.currentTab];
-                storage.sheets = {};
-                workbook.SheetNames.forEach(name => {
-                    const rows = XLSX.utils.sheet_to_json(workbook.Sheets[name], {header:1});
-                    if(rows.length > 0) {
-                        storage.sheets[name] = { h: rows[0], d: rows.slice(1) };
-                    }
-                });
-                this.renderDataPanel();
-                this.updateStatusIndicator();
-            },
-
-            renderDataPanel() {
-                const container = document.getElementById('data-list');
-                const sheets = this.tabStorage[this.currentTab].sheets;
-                container.innerHTML = "";
-                Object.keys(sheets).forEach(sheetName => {
-                    const h = document.createElement('div');
-                    h.className = 'tab-group-header';
-                    h.innerText = `📁 ${sheetName}`;
-                    container.appendChild(h);
-                    const group = document.createElement('div');
-                    sheets[sheetName].h.forEach((col, idx) => {
-                        const item = document.createElement('div');
-                        item.className = 'field-item';
-                        item.draggable = true;
-                        item.innerText = `field: ${col}`;
-                        item.ondragstart = (e) => e.dataTransfer.setData('field', JSON.stringify({tab: sheetName, name: col, idx}));
-                        group.appendChild(item);
-                    });
-                    container.appendChild(group);
+            renderFields() {
+                const list = document.getElementById('data-list');
+                list.innerHTML = "";
+                this.data.h.forEach((name, idx) => {
+                    const div = document.createElement('div');
+                    div.className = 'field-item';
+                    div.draggable = true;
+                    div.innerText = name;
+                    div.ondragstart = (e) => e.dataTransfer.setData('field', idx);
+                    list.appendChild(div);
                 });
             },
-
-            updateStatusIndicator() {
-                const count = Object.keys(this.tabStorage[this.currentTab].sheets).length;
-                document.getElementById('stat-dot').className = count > 0 ? 'status-dot status-on' : 'status-dot';
-                document.getElementById('stat-text').innerText = count > 0 ? `${count} Tabs Active` : "System Standby";
-            },
-
-            dragS(e, val, type) { e.dataTransfer.setData(type, val); },
-            allow(e) { e.preventDefault(); },
 
             dropNewChart(e) {
                 e.preventDefault();
                 const type = e.dataTransfer.getData('v');
-                if(type) this.createChartElement(type);
-            },
+                if (!type) return;
 
-            createChartElement(type) {
                 const id = 'ch' + Date.now();
-                const container = document.getElementById(this.currentTab);
                 const card = document.createElement('div');
                 card.className = 'chart-card';
-                card.innerHTML = `
-                    <div style="font-size:10px; font-weight:800; margin-bottom:10px;">${type.toUpperCase()} VISUAL</div>
-                    <div id="wrap_${id}" style="flex-grow:1; display:flex; align-items:center; justify-content:center; background:#f9fafb; border:1px dashed #ccc;">
-                        Drop data field here
-                    </div>
-                `;
-                card.ondragover = (e) => e.preventDefault();
-                card.ondrop = (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const field = JSON.parse(e.dataTransfer.getData('field'));
-                    this.renderChart(id, type, field);
+                card.innerHTML = `<div style="font-size:10px;">Drop Data Field Here</div><canvas id="${id}"></canvas>`;
+                
+                card.ondragover = (ev) => ev.preventDefault();
+                card.ondrop = (ev) => {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    const fieldIdx = ev.dataTransfer.getData('field');
+                    this.draw(id, type, fieldIdx);
                 };
-                container.appendChild(card);
+
+                document.getElementById(this.currentTab).appendChild(card);
             },
 
-            renderChart(id, type, field) {
-                const wrapper = document.getElementById(`wrap_${id}`);
-                wrapper.innerHTML = `<canvas id="${id}"></canvas>`;
-                const sheet = this.tabStorage[this.currentTab].sheets[field.tab];
-                const labels = sheet.d.map(r => r[0]).slice(0, 10);
-                const data = sheet.d.map(r => r[field.idx]).slice(0, 10);
-
-                new Chart(document.getElementById(id), {
-                    type: type === 'table' ? 'bar' : type,
+            draw(id, type, idx) {
+                const ctx = document.getElementById(id).getContext('2d');
+                new Chart(ctx, {
+                    type: type,
                     data: {
-                        labels: labels,
-                        datasets: [{ label: field.name, data: data, backgroundColor: '#2980B9' }]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false }
+                        labels: this.data.d.map(r => r[0]).slice(0, 10),
+                        datasets: [{
+                            label: this.data.h[idx],
+                            data: this.data.d.map(r => r[idx]).slice(0, 10),
+                            backgroundColor: '#2980B9'
+                        }]
+                    }
                 });
-            },
-
-            saveDashboard() { alert("Layout Saved Locally"); },
-            clearFullDashboard() { localStorage.clear(); location.reload(); },
-            loadSavedCharts() {}
+            }
         };
     </script>
 </body>
