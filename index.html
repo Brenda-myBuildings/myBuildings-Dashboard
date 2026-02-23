@@ -2,35 +2,38 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <title>Khusela Analytics - Logic Restored</title>
+    <title>Khusela Professional Dashboard - FINAL REPAIR</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <style>
-        :root { --c-charcoal: #2C3E50; --c-black: #1A1A1A; --c-blue: #2980B9; --c-green: #27AE60; --c-grey-light: #F2F4F4; --nav-dark: #1F2937; --bg: #EBEDEF; }
+        :root { --c-charcoal: #2C3E50; --c-black: #1A1A1A; --c-blue: #2980B9; --c-green: #27AE60; --c-grey-light: #F2F4F4; --c-grey-mid: #95A5A6; --nav-dark: #1F2937; --bg: #EBEDEF; }
         body { margin: 0; font-family: 'Segoe UI', sans-serif; height: 100vh; display: flex; flex-direction: column; background: var(--bg); overflow: hidden; }
-        .nav-bar { background: var(--nav-dark); display: flex; padding: 0 40px; flex-shrink: 0; height: 45px; }
-        .nav-item { display: flex; align-items: center; padding: 0 20px; color: #94a3b8; font-size: 11px; font-weight: 800; cursor: pointer; text-transform: uppercase; border-bottom: 3px solid transparent; }
+        .nav-bar { background: var(--nav-dark); display: flex; padding: 0 40px; flex-shrink: 0; }
+        .nav-item { padding: 12px 20px; color: #94a3b8; font-size: 11px; font-weight: 800; cursor: pointer; text-transform: uppercase; border-bottom: 3px solid transparent; }
         .nav-item.active { color: white; border-bottom-color: var(--c-blue); background: rgba(255,255,255,0.05); }
         .header { background: white; color: var(--c-charcoal); padding: 12px 40px; font-size: 16px; font-weight: 800; border-bottom: 4px solid var(--c-charcoal); flex-shrink: 0; }
-        #main-layout { display: grid; grid-template-columns: 240px 1fr 300px; flex-grow: 1; height: calc(100vh - 100px); overflow: hidden; }
+        #main-layout { display: grid; grid-template-columns: 240px 1fr 300px; flex-grow: 1; height: calc(100vh - 110px); overflow: hidden; }
         .sidebar-l { background: white; border-right: 1px solid #d1d5db; padding: 15px; overflow-y: auto; }
-        .btn-pbi { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid #d1d5db; background: var(--c-grey-light); color: var(--c-charcoal); cursor: pointer; font-weight: 700; font-size: 11px; border-radius: 4px; display: block; text-align: center; text-transform: uppercase; }
+        .btn-pbi { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid #d1d5db; background: var(--c-grey-light); color: var(--c-charcoal); cursor: pointer; font-weight: 700; font-size: 11px; border-radius: 4px; display: block; text-align: center; transition: 0.2s; }
         .btn-url { background: var(--c-blue); color: white; border: none; }
+        .btn-save { background: var(--c-charcoal); color: white; border: none; margin-top: 15px; }
         .btn-clear { background: #991b1b; color: white; border: none; }
-        .canvas-area { padding: 20px; overflow-y: auto; background: #cbd5e1; }
-        .page-sheet { display: none; background: white; width: 100%; min-height: 85vh; padding: 25px; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; box-sizing: border-box; }
+        .canvas-area { padding: 20px; overflow-y: auto; background: #cbd5e1; display: flex; flex-direction: column; align-items: center; }
+        .page-sheet { display: none; background: white; width: 100%; max-width: 1400px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; padding: 25px; box-sizing: border-box; align-items: start; }
         .page-sheet.active { display: grid; }
-        .chart-card { border: 1px solid #e2e8f0; background: #fff; padding: 15px; display: flex; flex-direction: column; border-radius: 4px; height: 380px; position: relative; }
+        .chart-card { border: 1px solid #e2e8f0; background: #fff; padding: 15px; display: flex; flex-direction: column; border-radius: 4px; position: relative; height: 380px; box-sizing: border-box; }
+        .deselect-btn { position: absolute; top: 10px; right: 10px; background: #111827; color: white; border: none; padding: 4px 8px; cursor: pointer; font-size: 9px; font-weight: 800; }
+        .chart-title-input { border: none; font-size: 13px; font-weight: 800; margin-bottom: 15px; width: 70%; outline: none; text-transform: uppercase; }
+        .chart-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; min-height: 20px; }
+        .tag { background: var(--c-grey-light); border: 1px solid #d1d5db; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 700; display: flex; align-items: center; gap: 5px; }
         .panes { display: flex; flex-direction: column; background: white; border-left: 1px solid #d1d5db; overflow-y: auto; }
-        .viz-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px; }
-        .viz-icon { height: 55px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: grab; background: #f8fafc; font-size: 9px; font-weight: 700; gap: 4px; border-radius: 4px; }
-        .field-item { padding: 8px 15px; font-size: 11px; cursor: grab; border-bottom: 1px solid #f1f5f9; font-weight: 500; }
+        .viz-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 10px; }
+        .viz-icon { height: 50px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: grab; background: #f8fafc; font-size: 9px; font-weight: 700; }
+        .field-item { padding: 8px 15px; font-size: 11px; cursor: grab; border-bottom: 1px solid #f1f5f9; }
         .tab-group-header { padding: 10px 15px; background: var(--c-charcoal); font-size: 10px; font-weight: 800; color: white; text-transform: uppercase; cursor: pointer; }
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; background: #94a3b8; margin-right: 5px; }
-        .status-on { background: var(--c-green); box-shadow: 0 0 8px var(--c-green); }
-        #drill-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
-        .drill-modal { background: white; width: 90%; height: 80%; border-radius: 4px; display: flex; flex-direction: column; }
+        #drill-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 10000; justify-content: center; align-items: center; }
+        .drill-modal { background: white; width: 95%; max-height: 85%; border-radius: 4px; display: flex; flex-direction: column; overflow: hidden; }
     </style>
 </head>
 <body onload="UI.init()">
@@ -44,14 +47,9 @@
         <aside class="sidebar-l">
             <button class="btn-pbi" onclick="UI.upload()">UPLOAD DOCUMENT</button>
             <button class="btn-pbi btn-url" onclick="UI.loadURL()">LOAD URL</button>
-            <div style="margin-top:20px; border-top:1px solid #eee; padding-top:15px;">
-                <div style="font-size:9px; font-weight:800; color:#94a3b8; margin-bottom:10px; text-transform:uppercase;">Admin Controls</div>
-                <button class="btn-pbi" style="background:var(--c-charcoal); color:white;" onclick="UI.saveDashboard()">SAVE DASHBOARD</button>
-                <button class="btn-pbi btn-clear" onclick="UI.clearFullDashboard()">CLEAR DASHBOARD</button>
-            </div>
-            <div style="margin-top:20px; font-size:10px; color:#64748b; font-weight: 700;">
-                <span id="stat-dot" class="status-dot"></span><span id="stat-text">System Standby</span>
-            </div>
+            <button class="btn-pbi btn-save" onclick="UI.saveDashboard()">SAVE DASHBOARD</button>
+            <button class="btn-pbi btn-clear" onclick="UI.clearFullDashboard()">CLEAR DASHBOARD</button>
+            <div style="margin-top:20px; font-size:10px;"><span id="stat-dot" class="status-dot"></span><span id="stat-text">System Standby</span></div>
         </aside>
         <main class="canvas-area">
             <div class="page-sheet active" id="compliance-page" ondragover="UI.allow(event)" ondrop="UI.dropNewChart(event)"></div>
@@ -59,17 +57,23 @@
             <div class="page-sheet" id="assets-page" ondragover="UI.allow(event)" ondrop="UI.dropNewChart(event)"></div>
         </main>
         <div class="panes">
-            <div style="padding:10px; font-weight:800; font-size:11px;">VISUAL TYPES</div>
             <div class="viz-grid">
-                <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'bar','v')">📊<span>Bar</span></div>
-                <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'line','v')">📈<span>Line</span></div>
-                <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'doughnut','v')">🍩<span>Doughnut</span></div>
-                <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'pie','v')">🥧<span>Pie</span></div>
-                <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'heatmap','v')">🌡️<span>Heatmap</span></div>
-                <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'table','v')">📋<span>Table</span></div>
+                <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'bar','v')">📊 Bar</div>
+                <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'line','v')">📈 Line</div>
+                <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'pie','v')">🥧 Pie</div>
+                <div class="viz-icon" draggable="true" ondragstart="UI.dragS(event,'table','v')">📋 Table</div>
             </div>
-            <div style="padding:10px; font-weight:800; font-size:11px; border-top:1px solid #eee;">FIELDS BY TAB</div>
             <div id="data-list"></div>
+        </div>
+    </div>
+
+    <div id="drill-overlay">
+        <div class="drill-modal">
+            <div style="background:var(--c-charcoal); color:white; padding:15px; display:flex; justify-content:space-between;">
+                <span id="drill-title">DATA VIEW</span>
+                <button onclick="UI.closeDrill()">CLOSE</button>
+            </div>
+            <div id="drill-table-container" style="overflow:auto; padding:10px;"></div>
         </div>
     </div>
 
@@ -77,11 +81,9 @@
     Chart.register(ChartDataLabels);
     const UI = {
         tabStorage: { 'compliance-page': { sheets: {}, activeFields: {} }, 'performance-page': { sheets: {}, activeFields: {} }, 'assets-page': { sheets: {}, activeFields: {} } },
-        charts: {}, currentTab: 'compliance-page',
-        proColors: ['#2C3E50', '#2980B9', '#27AE60', '#F1C40F', '#E67E22', '#E74C3C'],
+        charts: {}, currentTab: 'compliance-page', proColors: ['#2C3E50', '#2980B9', '#27AE60', '#95A5A6'],
 
         init() { this.renderDataPanel(); },
-
         switchTab(el, pageId) {
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             el.classList.add('active');
@@ -90,10 +92,8 @@
             this.currentTab = pageId;
             this.renderDataPanel();
         },
-
         upload() {
-            const input = document.createElement('input');
-            input.type = 'file';
+            const input = document.createElement('input'); input.type = 'file';
             input.onchange = (e) => {
                 const reader = new FileReader();
                 reader.onload = (ev) => this.process(ev.target.result);
@@ -101,106 +101,72 @@
             };
             input.click();
         },
-
         process(buffer) {
             const workbook = XLSX.read(new Uint8Array(buffer), {type:'array'});
             const storage = this.tabStorage[this.currentTab];
             storage.sheets = {};
             workbook.SheetNames.forEach(name => {
                 const rows = XLSX.utils.sheet_to_json(workbook.Sheets[name], {header:1, defval:""});
-                if(rows.length > 0) storage.sheets[name] = { h: rows[0], d: rows.slice(1).filter(r => r.some(c => c !== "")) };
+                if(rows.length > 0) storage.sheets[name] = { h: rows[0], d: rows.slice(1) };
             });
             this.renderDataPanel();
-            this.updateStatusIndicator();
         },
-
         renderDataPanel() {
             const container = document.getElementById('data-list');
             const sheets = this.tabStorage[this.currentTab].sheets;
             container.innerHTML = "";
             Object.keys(sheets).forEach(sheetName => {
-                const h = document.createElement('div');
-                h.className = 'tab-group-header';
-                h.innerText = `📁 ${sheetName}`;
+                const h = document.createElement('div'); h.className = 'tab-group-header'; h.innerText = `📁 ${sheetName}`;
                 container.appendChild(h);
                 const g = document.createElement('div');
                 sheets[sheetName].h.forEach((name, idx) => {
                     if(!name) return;
-                    const isNum = sheets[sheetName].d.some(r => !isNaN(parseFloat(r[idx])) && r[idx] !== "");
-                    const item = document.createElement('div');
-                    item.className = 'field-item';
-                    item.draggable = true;
-                    item.innerHTML = `<span style="color:var(--c-blue); font-weight:800;">${isNum?'#':'Aa'}</span> ${name}`;
-                    item.ondragstart = (e) => e.dataTransfer.setData('field', JSON.stringify({tab: sheetName, name, idx, isNum}));
+                    const item = document.createElement('div'); item.className = 'field-item'; item.draggable = true;
+                    item.innerText = name;
+                    item.ondragstart = (e) => e.dataTransfer.setData('field', JSON.stringify({tab: sheetName, name, idx}));
                     g.appendChild(item);
                 });
                 container.appendChild(g);
-                h.onclick = () => g.style.display = g.style.display === 'none' ? 'block' : 'none';
             });
         },
-
-        updateStatusIndicator() {
-            const count = Object.keys(this.tabStorage[this.currentTab].sheets).length;
-            document.getElementById('stat-dot').className = count > 0 ? 'status-dot status-on' : 'status-dot';
-            document.getElementById('stat-text').innerText = count > 0 ? `${count} Tabs Active` : "System Standby";
-        },
-
         dragS(e, val, type) { e.dataTransfer.setData(type, val); },
         allow(e) { e.preventDefault(); },
-
-        dropNewChart(e) {
-            e.preventDefault();
-            const type = e.dataTransfer.getData('v');
-            if(type) this.createChartElement(type);
-        },
+        dropNewChart(e) { e.preventDefault(); const type = e.dataTransfer.getData('v'); if(type) this.createChartElement(type); },
 
         createChartElement(type, id = 'ch'+Date.now()) {
-            const card = document.createElement('div');
-            card.className = 'chart-card';
-            card.innerHTML = `<div style="font-size:11px; font-weight:800; text-transform:uppercase; margin-bottom:10px;">${type} Visual</div>
-                             <div id="wrap_${id}" style="flex-grow:1; display:flex; align-items:center; justify-content:center; background:#f8fafc; border:1px dashed #ccc;">Drop Field</div>`;
+            const card = document.createElement('div'); card.className = 'chart-card';
+            card.innerHTML = `<button class="deselect-btn" onclick="this.parentElement.remove()">DELETE</button>
+                             <input class="chart-title-input" value="New Visual">
+                             <div class="chart-tags" id="tags_${id}"></div>
+                             <div id="wrap_${id}" style="flex-grow:1; position:relative;">
+                                ${type === 'table' ? `<div id="grid_${id}"></div>` : `<canvas id="${id}"></canvas>`}
+                             </div>`;
             card.ondragover = (e) => e.preventDefault();
             card.ondrop = (e) => { e.preventDefault(); e.stopPropagation(); this.handleDataDrop(e, id); };
             document.getElementById(this.currentTab).appendChild(card);
             this.tabStorage[this.currentTab].activeFields[id] = { type, axis: null, values: [] };
+            if(type !== 'table') this.charts[id] = new Chart(document.getElementById(id), { type: type === 'heatmap' ? 'bar' : type, data: {labels:[], datasets:[]}, options: { responsive:true, maintainAspectRatio:false }});
         },
-
         handleDataDrop(e, id) {
             const field = JSON.parse(e.dataTransfer.getData('field'));
             const state = this.tabStorage[this.currentTab].activeFields[id];
-            if(!state.axis) state.axis = field; else state.values.push(field);
+            if(!state.axis) state.axis = field; else state.values = [field];
             this.refresh(id);
         },
-
         refresh(id) {
             const state = this.tabStorage[this.currentTab].activeFields[id];
             const sheet = this.tabStorage[this.currentTab].sheets[state.axis.tab];
-            const wrap = document.getElementById(`wrap_${id}`);
-            
             if(state.type === 'table') {
-                let h = `<table style="width:100%; border-collapse:collapse; font-size:10px;"><thead><tr><th>${state.axis.name}</th>${state.values.map(v=>`<th>${v.name}</th>`).join('')}</tr></thead><tbody>`;
-                sheet.d.slice(0, 15).forEach(r => h += `<tr><td>${r[state.axis.idx]}</td>${state.values.map(v=>`<td>${r[v.idx]}</td>`).join('')}</tr>`);
-                wrap.innerHTML = h + `</tbody></table>`;
-            } else {
-                wrap.innerHTML = `<canvas id="canvas_${id}"></canvas>`;
-                const labels = [...new Set(sheet.d.map(r => String(r[state.axis.idx])))].slice(0, 12);
-                const datasets = state.values.length ? state.values.map((v, i) => ({
-                    label: v.name,
-                    backgroundColor: this.proColors[i % 6],
-                    data: labels.map(l => {
-                        const subset = sheet.d.filter(r => String(r[state.axis.idx]) === l);
-                        return v.isNum ? subset.reduce((a, b) => a + (parseFloat(b[v.idx]) || 0), 0) : subset.length;
-                    })
-                })) : [{ label: 'Count', data: labels.map(l => sheet.d.filter(r => String(r[state.axis.idx]) === l).length), backgroundColor: this.proColors[0] }];
-
-                this.charts[id] = new Chart(document.getElementById(`canvas_${id}`), {
-                    type: state.type === 'heatmap' ? 'bar' : state.type,
-                    data: { labels, datasets },
-                    options: { responsive: true, maintainAspectRatio: false }
-                });
+                document.getElementById(`grid_${id}`).innerHTML = "Table Data Loaded";
+            } else if(state.values.length) {
+                const labels = sheet.d.map(r => r[state.axis.idx]).slice(0, 10);
+                const data = sheet.d.map(r => parseFloat(r[state.values[0].idx]) || 0).slice(0, 10);
+                this.charts[id].data = { labels, datasets: [{ label: state.values[0].name, data, backgroundColor: '#2980B9' }] };
+                this.charts[id].update();
             }
         },
-        saveDashboard() { alert("Layout Saved"); },
+        closeDrill() { document.getElementById('drill-overlay').style.display = 'none'; },
+        saveDashboard() { alert("Saved"); },
         clearFullDashboard() { localStorage.clear(); location.reload(); }
     };
 </script>
